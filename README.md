@@ -6,4 +6,4 @@
 * Note.. in testing!
 
 
-Mkpass let's you make a password hash. Give ia a password and get a hash back.
+Mkpass let's you make a password hash. Give a password and get a hash back.
