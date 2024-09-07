@@ -1,3 +1,4 @@
+import os
 import argparse
 import hashlib
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -22,7 +23,7 @@ def hash_password(password, salt=None, iterations=100000, algorithm="sha256"):
 
     kdf = PBKDF2HMAC(
         algorithm=hashes.get_algorithm(algorithm),
-        length=32,
+        length=32, # can make 64 
         salt=salt,
         iterations=iterations
     )
