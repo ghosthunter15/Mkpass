@@ -3,7 +3,18 @@ import argparse
 import hashlib
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
-import unittest
+
+def get_algorithm(algorithm_name):
+    """Returns the appropriate cryptography hash algorithm class."""
+    algorithms = {
+        "md5": hashes.MD5(),
+        "sha1": hashes.SHA1(),
+        "sha256": hashes.SHA256(),
+        "sha384": hashes.SHA384(),
+        "sha512": hashes.SHA512(),
+        "blake2b": hashes.BLAKE2b(64),  # BLAKE2b requires a digest size argument
+    }
+    return algorithms.get(algorithm_name.lower())
 
 def hash_password(password, salt=None, iterations=100000, algorithm="sha256"):
     """Hashes a password using PBKDF2.
@@ -20,10 +31,20 @@ def hash_password(password, salt=None, iterations=100000, algorithm="sha256"):
 
     if salt is None:
         salt = os.urandom(16)
+    else:
+        if isinstance(salt, str):
+            salt = salt.encode('utf-8')
+
+    if isinstance(password, str):
+        password = password.encode('utf-8')  # Ensure password is bytes
+
+    algorithm = get_algorithm(algorithm)
+    if algorithm is None:
+        raise ValueError(f"Unsupported algorithm: {algorithm}")
 
     kdf = PBKDF2HMAC(
-        algorithm=hashes.get_algorithm(algorithm),
-        length=32, # can make 64 
+        algorithm=algorithm,
+        length=32,
         salt=salt,
         iterations=iterations
     )
@@ -33,6 +54,7 @@ def hash_password(password, salt=None, iterations=100000, algorithm="sha256"):
 
 def main():
     parser = argparse.ArgumentParser(description="Hash a password")
+    parser.add_argument("-V", "--version", action="version", version="%(prog)s v1.5.0")
     parser.add_argument("password", help="The password to hash")
     parser.add_argument("-s", "--salt", help="The salt to use for hashing")
     parser.add_argument("-i", "--iterations", type=int, default=100000, help="The number of iterations for PBKDF2")
@@ -45,19 +67,4 @@ def main():
     print(f"Salt: {salt.hex()}")
 
 if __name__ == "__main__":
-    if __name__ == "__main__":
-        main()
-
-class TestHashPassword(unittest.TestCase):
-    def test_hashing(self):
-        password = b"my_password"
-        salt = b"my_salt"
-        expected_hash = b"your_expected_hash"  # Replace with the expected hashed value
-
-        hashed_password, calculated_salt = hash_password(password, salt)
-
-        self.assertEqual(hashed_password, expected_hash)
-        self.assertEqual(salt, calculated_salt)
-
-if __name__ == "__main__":
-    unittest.main()
+    main()
