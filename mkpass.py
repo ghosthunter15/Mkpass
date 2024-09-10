@@ -25,7 +25,7 @@ def hash_password(password, salt=None, iterations=100000, algorithm="sha256"):
         algorithm: The hashing algorithm to use.
     Returns:
         The hashed password and the salt.
-        """
+    """
 
     if not isinstance(password, (str, bytes)):
         raise TypeError("Password must be a string or bytes")
