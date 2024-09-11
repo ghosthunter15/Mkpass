@@ -77,6 +77,24 @@ class TestHashPassword(unittest.TestCase):
         hash_sha512, _ = hash_password(password, salt, algorithm="sha512")
         self.assertNotEqual(hash_sha256, hash_sha512)
 
+    # New test for pepper usage
+    def test_pepper_effect(self):
+        password = "password123"
+        salt = os.urandom(16)
+
+        # Hash without pepper
+        hash_without_pepper, _ = hash_password(password, salt, use_pepper=False)
+
+        # Hash with pepper
+        hash_with_pepper, _ = hash_password(password, salt, use_pepper=True)
+
+        # Ensure the hashes are different when pepper is used
+        self.assertNotEqual(hash_without_pepper, hash_with_pepper)
+
+        # Ensure both are bytes
+        self.assertIsInstance(hash_without_pepper, bytes)
+        self.assertIsInstance(hash_with_pepper, bytes)
+
 # Create a test suite
 def suite():
     suite = unittest.TestSuite()
@@ -92,6 +110,7 @@ def suite():
     suite.addTest(TestHashPassword('test_hash_consistency'))
     suite.addTest(TestHashPassword('test_hash_length'))
     suite.addTest(TestHashPassword('test_different_algorithms'))
+    suite.addTest(TestHashPassword('test_pepper_effect'))  # New pepper test case
     return suite
 
 if __name__ == "__main__":
